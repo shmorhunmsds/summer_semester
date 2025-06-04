@@ -237,3 +237,269 @@ We could also frame all of this in terms of hypothesis testing. Following the sa
 - Step 5: Determine whether we can reject the null hypothesis. This comes down to your threshold ($\alpha$), how unlikely does your data’s test statistic need to be for you to reject the null? A common number is 5%. If that's your threshold, then if step 4 gave you a lower $p$-value than your $\alpha$ threshold, then that's too unlikely for your, and you can reject the null hypothesis that the mean is 90. 
 
 This section describes what hypothesis testing actually is and what it’s for. Statistical significance is not a marker of being correct or important. It’s just a marker of being able to reject some theoretical distribution you’ve chosen. That can certainly be interesting. At the very least, we’ve narrowed down the likely list of ways that our data could have been generated. And that’s the whole point!
+
+## Chapter 4 - Describing Relationships
+
+### 4.1 What is a Relationship?
+For most research questions, we are not just interested in the distribution of a single variable. Instead, we are interested in the *relationship* we see in the data between two or more variables. The relationship between two variables shows you *what learning about one variable tells you about the other*.
+
+For example, take height and age among children: 
+- Generally, the older a child is, the taller they are. So, learning that one child is thirteen and another is six will give you a pretty good guess as to which of the two children is taller.
+    - We can call the relationship between height and age positive, meaning that for higher values of one of the variables, we expect to see higher values of the other, too (more age is associated with more height).
+    - There are also negative relationships, where higher values of one tend to go along with lower values of the other (more age is associated with less crying).
+    - There are also null relationships where the variables have nothing to do with each other (older children aren’t any more or less likely to live in France than younger children).
+
+A scatterplot is a basic way to show all the information about a relationship between two continuous variables, like the density plots were for a single continuous variable in Chapter 3. They're usually a great place to start describing a relationship. Scatterplots imply two things beyond what they actually show.
+- The bad one is that it’s very tempting to look at a relationship in a scatterplot and assume that it means that the $x$-axis causes the $y$-axis.
+- The good one is that it encourages us to use the scatterplot to imagine other ways of describing the relationship that might give us the information we want in a more digestible way.
+
+### 4.2 Conditional Distributions
+A conditional distribution is the distribution of one variable given the value of another variable.
+
+Let’s start with a more basic version - conditional probability:
+- The probability that someone is a woman is roughly 50%. 
+- But the probability that someone who is named Sarah is a woman is much higher than 50%. 
+- You can also say “among all Sarahs, what proportion are women?” We would say that this is the “probability that someone is a woman conditional on being named Sarah.”
+- Learning that someone is named Sarah changes the probability that we can place on them being a woman.
+
+Conditional distributions work the same way, except that this time, instead of just a single probability changing, an entire distribution changes. This also applies to categorical variables.
+
+### 4.3 Conditional Means
+With the concept of a conditional distribution under our belt, it should be clear that we can then calculate any feature of that distribution conditional on the value of another variable.
+- What’s the 95th percentile of vitamin E taking overall and for smokers? What’s the median? 
+- What’s the standard deviation of mortality for people who take 90th-percentile levels of vitamin E, and for people who take 10th-percentile levels?
+
+While all those possibilities remain floating in the air, we will focus on the conditional mean. Given a certain value of $x$, what do I expect the mean of $y$ to be?
+
+Once we have the conditional mean, we can describe the relationship between the two variables fairly well.
+- If the mean of $Y$ is higher conditional on a higher value of $X$, then $Y$ and $X$ are positively related. 
+- Going further, we can map out all of the conditional means of $Y$ for each value of $X$, giving us the full picture of how the mean of one variable is related to the values of the other.
+
+In some cases, this is easy to calculate. If the variable you are conditioning on is discrete (or categorical), you can just calculate the mean of all observations with that value. 
+
+Things get a little more complex when you are conditioning on a continuous variable. 
+
+After all, I can’t give you the proportion taking vitamin E among those making $84,325 per year because there’s unlikely to be more than one person with that exact number. And lots of numbers would have nobody at all to take the mean over! 
+
+There are two approaches we can take here:
+- One approach is to use a *range* of values for the variable we're conditioning on rather than a single value. 
+- Another is to use some sort of shape or line to fill in those gaps with no observations. 
+
+Let’s focus first on using a range of values. 
+- Since BMI is continuous, I’ve cut it up into ten equally-sized ranges (bins) and calculated the proportion taking vitamin E within each of those ranges. 
+- Cutting the data into bins to take a conditional mean isn’t actually done that often in real research, but it gives a good intuitive sense of what we’re trying to do when we use other methods later.
+- Those same ranges can be graphed. The flat lines reflect we are assigning the same mean to every observation in that range of BMI values. They show the mean conditional on being in that BMI bin. We see from this that BI has a positive relationship wtih taking vitamin E up until the 70+ ranges, at which point the conditional means drop. 
+
+Of course, while this approach is simple and illustrative, it’s also fairly arbitrary. Instead, we can use a range of $X$ values to get conditional means of $Y$ using *local* means, where we calculate the conditional mean of $Y$ at a value (for example $X = 25$), we take the mean of $Y$ for all observations with $X$ values near 2.5. 
+
+A common way to do this is with a LOESS curve, also known as a LOWESS. LOESS provides a local prediction, which it gets by fitting a different shape for each value on the $X$ axis, with the estimation of that shape weighting very-close observations more than kind-of-close observations. The end result is nice and smooth.
+
+### 4.4 Line Fitting
+Showing the mean of $Y$ among local values of $X$ is valuable, and can produce a highly detailed picture of the relationship between $X$ and $Y$. But it also has limitations. There might still be gaps in your data it has trouble filling in, for one. Also it can be hard sometimes to concisely describe the kind of relationship you see. Enter the concept of line-fitting or regression. 
+
+Instead of thinking locally and producing estimates of the mean of $Y$ conditional on values of $X$, we can assume that the underlying relationship betwen $X$ and $Y$ can be represented by some sort of shape. In basic forms of regression, that shape is a straight line, For example, the line
+
+$Y \; = \; X + 4X$
+
+Tells us that the mean of $Y$ conditional on say, $X = 5$ is $3 + 4(5) = 23$. It also tells us that the mean of $Y$ conditional on a given value of $X$ would be 4 higher if you made it conditional on a value of $X$ one unit higher. This approach has real benefits: 
+- It gives us the conditional mean of $Y$ for any value of $X$ we can think of, even if we don't have data for that specific value. 
+- It also lets us very cleanly describe the relationship between $Y$ and $X$.
+- If the slope coefficient on $X$ is positive, then $X$ and $Y$ are positively related.
+- If its negative, they're negatively related. 
+
+There are pragmatic upsides for using a fitted line. There are more upsides in statistical terms in using a line-fitting procedure to estimate the relationship.
+- Since the line is estimated using all the data, rather than just local data, the results are more precise. 
+- Also, the line can be easily extended to include more than one variable.
+
+There is a downside as well:
+- The biggest downside is that fitting a line requires us to *fit* a line. We need to pick what kind of shape the relationship is (straight, curved, wobbly?).
+- If the shape is wrong to start with, then our conditional mean will be all wrong.
+
+**Ordinary Least Squares (OLS) is the most well-known application of line-fitting. OLS picks the line that gives the lowest sum of squared residuals. 
+
+A **residual** is the difference between an observation’s actual value and the conditional mean assigned by the line.
+
+- Take that $Y = 3 + 4X$ example. We determined that the conditional mean of $Y$ when $X = 5$ is $3 + 4(5) = 23$.
+- But what if we see someone in the data with $X = 5$ and $Y = 25$? 
+- Well then their residual is $25 - 23 = 2$. OLS takes that number, squares it to a 4, then adds up all the predictions across all your data.
+- Then it picks the values of $\beta_0$ and $\beta_1$ in the line $Y = \beta_0 + \beta_1X$ that make the sum of squared residuals as small as possible.
+
+How does this work? It takes advantage of information about how the two variables move together or apart, encoded in the *covariance*. 
+
+If you recall the variance from Chapter 3, you’ll remember that to calculate the variance of $X$, we: 
+- (a) subtracted the mean of $X$ from $X$, 
+- (b) squared the result,
+- (c) added up the result across all the observations, and 
+- (d) divided by the sample size minus one. 
+
+The resulting variance shows how much a variable actually varies.
+
+The covariance is the exact same thing, except that in step (a) you subtract the mean from two separate variables, and in step (b) you multiply the result from one variable by the result from the other. 
+
+The resulting covariance shows how much two variables move together or apart. 
+- If they tend to be above average at the same time or below average at the same time, then multiplying one by the other will produce a positive result for most observations, increasing the covariance. 
+- If they have nothing to do with each other, then multiplying one by the other will give a positive result about half the time and a negative result the other half, canceling out in step (c) and give you a covariance of 0.
+
+How does OLS use covariance to get the relationship between $X$ and $Y$? It just takes the covariance and divides it by the covariance of $X$. (i.e., $cov(X,Y)/var(X)$). 
+
+This is roughly saying "of all the variation in $X$, how much of its varies along with $Y$?. Then, once it has its slope, it picks an intercept for the line that makes the mean of the residuals (not the squared residuals) $0$ (the conditional mean is at least right on average.)
+
+The result from OLS is then a line with an intercept and a slope (like $Y = 3 + 4X$). You can plus in a value of $X$ to get the conditional mean of $Y$. Crucially, you can describe the relationship between the variables using the slope. 
+
+Sometimes we may find it useful to rescale the OLS result. This brings us to the concept of **correlation**. 
+- Correlation, specifically Pearson’s correlation coefficient, takes this exact concept and just rescales it, multiplying the OLS slope by the standard deviation of $X$ and dividing it by the standard deviation of $Y$. 
+- This is the same as taking the covariance between $X$ and $Y$ and dividing by both the standard deviation of $X$ and the standard deviation of $Y$.
+- We lose the ability to interpret the slope in terms of units of $X$ and $Y$, but gain the ability to easily tell how strong the relationship is. 
+
+The correlation coefficient can only range from $-1$ to $1$, and the interpretation is the same no matter what units the original variables were in. 
+- The closer to $-1$ it is, the more strongly the variables move in opposite directions.
+- The closer to $1$ it is, the more strongly the variables move in the same direction (upward slope).
+
+For the vitamin E and BMI example. OLS estimates the line
+
+$VitaminE \; = \; \beta_0 + \beta_1 BMI$
+
+and selects the best-fit values of $\beta_1$ and $\beta_2$ to give us
+
+$VitaminE \; = \; .110 + .002BMI$
+
+So for a one-unit increase in BMI we'd expect a .002 increase in the conditional mean of vitamin E. 
+
+Then, since the standard deviation of taking vitamin E is .369 and the standard deviation of BMI is 6.543, the Pearson correlation between the two is 
+
+$.002 \times 6.543 / .369 = .355$
+
+OLS doesn't have to be a straight line, it just needs to fit a line that is "linear in the coefficients", meaning that the slope coefficients don't have to do anything wilder than being multiplied by a variable.
+
+The 2nd hero is **nonlinear regression** (which takes many forms), but often in the form 
+
+$Y \; = \; F(\beta_0 + \beta_1X)$
+
+where $F$ is some function, depending on what you're doing. 
+
+Nonlinear regression is commonly used when $Y$ can only take a limited number of values.
+
+### Conditional Conditional Means, a.k.a. “Controlling for a Variable”
+Let us enter the land of the unexplained. By which I mean the **residuals**.
+
+When you get the mean of $Y$ conditional on $X$, you're splitting each observation into two parts:
+1. The part *explained by* $X$ (the conditional mean)
+2. The part *not explained by* $X$ (the residual)
+
+We can think of the **residual** as the *part of $Y$ that has nothing to do with $X$*. 
+
+There are a number of uses for the residual. Maybe we just want to know the variation in $Y$, but we want to know how much variation in $Y$ that is not explained by $X$. Looking at the residuals would answer exactly that question. 
+
+Things get really interesting when we look at the residuals of two variables at once. What if we take the explained part out of two different variables? For example (with $X, Y, Z$)
+1. Get the mean of $Y$ conditional on $Z$
+2. Subtract out that conditional mean to get the residual of $Y$. Call this $Y^R$. 
+3. Get the mean of $X$ condtional on $Z$
+4. Subtract out that conditional mean to ge tthe residual of $X$. Call this $X^R$.
+5. Describe the relationship between $Y^R$ and $X^R$.
+
+Since $Y^R$ and $X^R$ have the parts of $Y$ and $X$ that can be explained with $Z$ removed, the relationship between $Y^R$ and $X^R$ is the *part of the relationship between $Y$ and $X$ that is not explained by $Z$*.
+
+In doing this, we are taking out all the varaition related to $Z$, in effect not allowing $Z$ to vary. This is why we call this process "controlling for" $Z$.
+
+Let’s take our ice cream and shorts example. We see that days where more people eat ice cream also tend to be days where more people wear shorts. But we also know that the temperature outside affects both of these things.
+- If we really want to know if ice cream-eating affects shorts-wearing, we would want to know how much of a relationship is there between ice cream and shorts that isn’t explained by temperature?
+- So we would get the mean of ice cream conditional on temperature, and then take the residual, getting only the variation in ice cream that has nothing to do with temperature.
+- Then we would take the mean of shorts-wearing conditional on temperature, and take the residual, getting only the variation in shorts-wearing that has nothing to do with temperature.
+- Finally, we get the mean of the shorts-wearing residual conditional on the ice cream residual. If the shorts mean doesn’t change much conditional on different values of ice cream eating, then the entire relationship was just explained by heat! 
+- If there’s still a strong relationship there, maybe we do have something.
+
+The easiest way to take conditional conditional means is with regression. Regression allows us to control for a variable by simply adding it to the equation. Now we have "multivariate" regression. So instead of:
+
+$Y = \beta_0 + \beta_1X$
+
+we just use
+
+$Y = \beta_0 + \beta_1X + \beta_2Z$
+
+the OLS estimate for $\$beta_1$ will automatically go through the steps of removing the conditional means and analyzing the relationship between $Y^R$ and $X^R$. 
+
+we can do things conditional on more than on variable. So we could add $W$ and do:
+
+$Y = \beta_0 + \beta_1X + \beta_2Z + \beta_3W$
+
+and now the $\beta_1$ that OLS picks will give us the relationship between $Y$ and $X$ conditional on *both* $Z$ and $W$.
+
+So how does regression do this? 
+
+The formula for multivariate OLS is
+
+$(A'A)^-1 A'Y$, 
+
+where $A$ is a matrix of all of the variables other than $Y$, including the $X$ we're interested in. In other words, it washes out the influence of all of the non-$X$ variables by dividing out a bunch of covariances.
+
+## Chapter 5 - Identification
+
+### 5.1 The Data Generating Process
+One way to think about science generally is that scientists believe that there are regular laws that govern the way the universe works.
+
+These laws are an example of a **“data generating process.”** The laws work behind the scenes, doing what they do whether we know about them or not. We can’t see them directly, but we do see the *data* that result from them.
+
+We can see that if you let go of a ball, it drops to the ground. That’s our observation, our data. Gravity is a part of the data generating process for that ball. That’s the underlying law.
+
+For example *gravity*:
+
+If we have two objects that are distance $r$ apart, one with a mass of $m_1$ and another with a mass of $m_2$, then the force $F$ pulling them together is
+
+$ F = G \frac{m_1 m_2}{r^2}$
+
+where $G$ is the "gravitational constant". We can infer how the world works from our data because things like the above equation are part of the data generating process, or DGP. If two planets are moving around in space, their movement is actually *determined* by that equation, and then we *observe* their movement as data. 
+
+The trick to data generating processes (DGPs) is that there are really two parts to them - the parts we know, and the parts we don’t. The parts we don’t know are what we’re hoping to learn about with our research.
+
+The parts we already know about are just as important, though. The DGP combines everything we already know about a topic and its underlying laws. Then, we can use what we do know to learn new things. We can use what we know to figure out as much as we can about the data generating process. This will allow us to figure out reasons why we see the data we see, so we can focus just on the parts we’re interested in.
+
+The first is the idea of looking for variation. The data generating process shows us all the different processes working behind the scenes that give us our data. But we’re only interested in part of that variation - in this case, it turned out to be the variation in income by hair color just among college students. How can we find the variation we need and focus just on that?
+
+The second is the idea of identification. How can we use the data generating process to be sure that the variation we’re digging out is the right variation? Figuring out what sorts of problems in the data you need to clear away - like how we noticed that the non-college students dying their hair was giving us problems - is the process of identification.
+
+### 5.2 Where's your Variation
+how can we find the variation in the data that answers our question? The data as a whole is too messy - it varies for all sorts of reasons. But somewhere inside the data, our reason for variation is hiding. How can we get it out?
+
+We have to ask what is the variation that we want to find? We need to use what we know about the data generating process to learn a little more.
+
+The task of figuring out how to answer our research question is really the task of figuring out where your variation is. It’s unlikely that the variation in the raw data answers the question you’re really interested in. So where is the variation that does answer your question? How can you find it and dig it out? What variation needs to be removed to unearth the good stuff underneath?
+
+That process - finding where the variation you’re interested in is lurking and isolating just that part so you know that you’re answering your research question - is called identification.
+
+### Identification
+Identification is the process of figuring out what part of the variation in your data answers your research question. It’s called identification because we’ve ensured that our calculation identifies a single theoretical mechanism of interest. In other words, we’ve gotten past all the misleading clues and identified our culprit.
+
+A research question takes us from theory to hypothesis, making sure that the hypothesis we’re testing will actually tell us something about the theory. Identification takes us from hypothesis to the data, making sure that we have a way of testing that hypothesis in the data, and not accidentally testing some other hypothesis instead.The process of closing off other possible explanations is also how we identify the answers to research questions in empirical studies.
+
+Once we have an idea of what our data generating process (DGP) we will have a good idea of what work we need to do. 
+
+Identification requires statistical procedures in order to properly get rid of the kinds of variation we don’t want. But just as important, it relies on theory and assumptions about the way that the world works in order to figure out what those undesirable explanations are, and which statistical procedures are necessary. Specifically, it relies on theory and assumptions about what the DGP looks like.
+
+If we want to identify the part of our data that gives the answer to our research question, we must:
+1. Using theory, paint the most accurate picture possible of what the data generating process looks like
+2. Use that data generating process to figure out the reasons our data might look the way it does that don’t answer our research question
+3. Find ways to block out those alternate reasons and so dig out the variation we need
+
+### 5.4 Alcohol and Mortality
+Let’s take a look at one major study, A. M. Wood et al. on the effects of alcohol on “all cause mortality” - basically, your chances of dying sooner. This study has more than 200 authors and studied the relationship between drinking and outcomes like mortality and cardiovascular disease among nearly 600,000 people. It was published in 2018 in the prominent medical journal The Lancet, and it has been used in discussions of how to set medical drinking guidelines, as in Connor and Hall. 
+
+The study is very well-regarded! What it found is that there did not appear to be a benefit of small amounts of drinking. Further, it found that the amount of alcohol it took to start noticing increased risk for serious outcomes like mortality was at about 100 grams of alcohol per week, which is about a drink per day, and below current guidelines in some countries.
+
+We know from previous sections in this chapter that in order to make sense of the data we need to think carefully about the data generating process. What is the data generating process? What leads us to observe people drinking? What leads us to observe them dying? What reasons might there be for us to see an association between alcohol and mortality?
+
+Thankfully, the authors of the Woods et al. study did manage to deal with some of these alternate explanations. They were putting some thought into what the data generating process looks like. 
+
+You may have noticed, for one, that Figure 5.5 actually doesn’t contain non-drinkers. They’ve been left out of the study because of the too-sick-to-drink and ex-alcoholic alternate explanations they want to block out. This is one reason why the study doesn’t find a positive effect of a little alcohol while other studies do - some of those other studies leave in the non-drinkers (oops!).
+
+### Context and Omniscience
+for most research questions, especially any questions that have a causal element to them, understanding context is incredibly important. If you don’t understand where your data came from, there’s no way that you’ll be able to block alternative explanations and identify the answer to your question.
+
+Before attempting to answer a research question empirically, be sure to put in plenty of time understanding the context that the data came from and how things work there.
+
+No research project is perfect. All we can hope to do is:
+- Learn what we can about the context so that we don’t miss any hugely important part of the data generating process
+- Be careful to acknowledge what assumptions we’re making, and think about how they might be wrong
+- Try to spot gaps in our knowledge about the data generating process, and make some realistic guesses about what might be in that gap
+- Not aim for perfection, but aim for getting as close as we can
+
+If we try to be omniscient, we’ll always fail. So there’s no point in that. But there is a point in trying to be useful. For that we simply need to learn what we can, work carefully, and try to make our errors small ones.
