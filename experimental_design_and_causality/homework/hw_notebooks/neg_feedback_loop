@@ -1,0 +1,8 @@
+// Sweating ↔ Body Temperature negative feedback
+digraph NegativeFeedbackLoop {
+	graph [rankdir=LR]
+	S [label=Sweating]
+	T [label="Body Temperature"]
+	S -> T [label=decrease]
+	T -> S [label=increase]
+}
